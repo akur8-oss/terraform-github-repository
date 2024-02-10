@@ -2,12 +2,13 @@ resource "github_repository" "this" {
   name = var.name
 
   # Informations
-  description          = var.description
-  homepage_url         = var.homepage_url
-  is_template          = var.is_template
-  topics               = var.topics
-  visibility           = var.visibility
-  vulnerability_alerts = var.vulnerability_alerts
+  description                 = var.description
+  homepage_url                = var.homepage_url
+  is_template                 = var.is_template
+  topics                      = var.topics
+  visibility                  = var.visibility
+  vulnerability_alerts        = var.vulnerability_alerts
+  web_commit_signoff_required = var.web_commit_signoff_required
 
   # Initialization settings
   auto_init          = var.auto_init
@@ -19,6 +20,7 @@ resource "github_repository" "this" {
   allow_merge_commit     = var.allow_merge_commit
   allow_rebase_merge     = var.allow_rebase_merge
   allow_squash_merge     = var.allow_squash_merge
+  allow_update_branch    = var.allow_update_branch
   delete_branch_on_merge = var.delete_branch_on_merge
 
   # Archiving behavior
@@ -26,11 +28,12 @@ resource "github_repository" "this" {
   archived           = var.archived
 
   # Features
-  has_downloads = var.has_downloads
-  has_issues    = var.has_issues
-  has_projects  = var.has_projects
-  has_wiki      = var.has_wiki
-  // pages         = var.pages
+  has_discussions = var.has_discussions
+  has_downloads   = var.has_downloads
+  has_issues      = var.has_issues
+  has_projects    = var.has_projects
+  has_wiki        = var.has_wiki
+  # pages         = var.pages
 
   dynamic "template" {
     for_each = var.template != null ? [1] : []
@@ -45,19 +48,13 @@ resource "github_repository" "this" {
     ignore_changes = [
       archive_on_destroy,
       auto_init,
-      etag,
     ]
   }
 }
 
-resource "github_branch" "default" {
-  count = var.default_branch == "main" ? 0 : 1
+resource "github_repository_tag_protection" "this" {
+  count = length(var.tag_protections)
 
   repository = github_repository.this.name
-  branch     = var.default_branch
-}
-
-resource "github_branch_default" "this" {
-  repository = github_repository.this.name
-  branch     = var.default_branch == "main" ? "main" : github_branch.default[0].branch
+  pattern    = var.tag_protections[count.index]
 }

@@ -27,6 +27,12 @@ variable "allow_squash_merge" {
   default     = true
 }
 
+variable "allow_update_branch" {
+  description = "Set to `true` to always suggest updating pull request branches."
+  type        = bool
+  default     = true
+}
+
 variable "archive_on_destroy" {
   description = "Set to false to delete the repository instead of archiving on destroy."
   type        = bool
@@ -69,6 +75,11 @@ variable "gitignore_template" {
   default     = null
 }
 
+variable "has_discussions" {
+  description = " Set to `true` to enable GitHub Discussions on the repository. Defaults to `false`."
+  type        = bool
+  default     = false
+}
 variable "has_downloads" {
   description = "Set to `true` to enable the (deprecated) downloads features on the repository."
   type        = bool
@@ -111,6 +122,12 @@ variable "license_template" {
   default     = null
 }
 
+variable "create_new_teams" {
+  description = "Create new teams to delegate permissions on the repositor."
+  type        = bool
+  default     = false
+}
+
 variable "teams_maintain" {
   description = "Slugs of the teams that will be granted the 'maintain' privilege. If null, a team will be created."
   type        = list(string)
@@ -151,4 +168,42 @@ variable "vulnerability_alerts" {
   description = "Set to true to enable security alerts for vulnerable dependencies. Enabling requires alerts to be enabled on the owner level. (Note for importing: GitHub enables the alerts on public repos but disables them on private repos by default.) See GitHub Documentation for details. Note that vulnerability alerts have not been successfully tested on any GitHub Enterprise instance and may be unavailable in those settings."
   type        = bool
   default     = true
+}
+
+variable "web_commit_signoff_required" {
+  description = "Require contributors to sign off on web-based commits."
+  type        = bool
+  default     = false
+}
+
+variable "tag_protections" {
+  description = "List of tag patterns to protect."
+  type        = list(string)
+  default     = []
+}
+
+variable "branch_protections" {
+  description = "List of branches to protect, allong with their configuration."
+  type = map(object({
+    allows_deletions                = optional(bool, false),
+    allows_force_pushes             = optional(bool, false),
+    blocks_creations                = optional(bool, true),
+    contexts                        = optional(list(string), []),
+    dismiss_stale_reviews           = optional(bool, true),
+    dismissal_restrictions          = optional(list(string), []),
+    enforce_admins                  = optional(bool, true),
+    force_push_bypassers            = optional(list(string), []),
+    lock_branch                     = optional(bool, false),
+    pull_request_bypassers          = optional(list(string), []),
+    push_restrictions               = optional(list(string), []),
+    require_code_owner_reviews      = optional(bool, true),
+    require_conversation_resolution = optional(bool, true),
+    require_last_push_approval      = optional(bool, true),
+    require_signed_commits          = optional(bool, true),
+    required_approving_review_count = optional(number, 2),
+    required_linear_history         = optional(bool, true),
+    restrict_dismissals             = optional(bool, false),
+    strict                          = optional(bool, true),
+  }))
+  default = {}
 }
